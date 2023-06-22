@@ -57,6 +57,7 @@ class IO(object):
 
         self.dictionary = dictionary
         self.log = log
+        self.sep = ':::'
 
         self.color_script = ColorScript()
 
@@ -78,7 +79,9 @@ class IO(object):
             if self.dictionary and os.path.exists(self.dictionary):
                 with open(self.dictionary, 'r') as f:
                     messages = f.readlines()
-                    message_dict = {entry.split(':')[0]: entry.split(':')[1].strip() for entry in messages}
+                    message_dict = {
+                        entry.split(self.sep)[0]: entry.split(self.sep)[1].strip() for entry in messages
+                    }
 
                     if message in message_dict:
                         message = message_dict[message]
