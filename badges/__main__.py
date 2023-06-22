@@ -53,7 +53,7 @@ class Badges(object):
         :return None: None
         """
 
-        self.print_empty(message, f"{start}Usage:", *args, **kwargs)
+        self.print_empty(message, f"{start}Usage: ", *args, **kwargs)
 
     def print_process(self, message: str, start: str = '%remove', *args, **kwargs) -> None:
         """ Print string with [*] start.
