@@ -71,7 +71,8 @@ class IO(object):
         :return None: None
         """
 
-        if self.translator and translate:
+        if self.translator and translate and \
+                  message and not message.isspace():
             found = False
 
             if self.dictionary and os.path.exists(self.dictionary):
