@@ -26,9 +26,7 @@ import os
 import sys
 
 from typing import Optional
-
 from translate import Translator
-
 from colorscript import ColorScript
 
 
