@@ -23,3 +23,4 @@ SOFTWARE.
 """
 
 from .__main__ import Badges
+from .tables import Tables
