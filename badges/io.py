@@ -53,25 +53,27 @@ class IO(object):
         super().__init__()
 
         if lang:
-            self.l10n = Translator(to_lang=lang)
+            self.translator = Translator(to_lang=lang)
         else:
-            self.l10n = None
+            self.translator = None
 
         self.dictionary = dictionary
         self.log = log
 
         self.color_script = ColorScript()
 
-    def print(self, message: str = '', start: str = '%remove', end: str = '%newline') -> None:
+    def print(self, message: str = '', start: str = '%remove',
+              end: str = '%newline', translate: bool = True) -> None:
         """ Print string.
 
         :param str message: message to print
         :param str start: string to print before the message
         :param str end: string to print after the message
+        :param bool translate: True to translate else False
         :return None: None
         """
 
-        if self.l10n:
+        if self.translator and translate:
             found = False
 
             if self.dictionary and os.path.exists(self.dictionary):
@@ -90,7 +92,7 @@ class IO(object):
                 for word in message.split():
                     if not any(command in word for command in self.color_script.commands):
                         try:
-                            full_message.append(self.l10n.translate(word))
+                            full_message.append(self.translator.translate(word))
                             continue
 
                         except Exception:

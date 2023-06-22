@@ -37,79 +37,70 @@ class Badges(object):
 
         self.io = IO(*args, **kwargs)
 
-    def print_empty(self, message: str = '', start: str = '%remove', end: str = '%newline') -> None:
+    def print_empty(self, *args, **kwargs) -> None:
         """ Print string with empty start.
 
-        :param str message: message to print
-        :param str start: string to print before the message
-        :param str end: string to print after the message
         :return None: None
         """
 
-        self.io.print(message, start, end)
+        self.io.print(*args, **kwargs)
 
-    def print_usage(self, message: str, start: str = '%remove', end: str = '%newline') -> None:
+    def print_usage(self, message: str, start: str = '%remove', *args, **kwargs) -> None:
         """ Print string with Usage: start.
 
         :param str message: message to print
         :param str start: string to print before the message
-        :param str end: string to print after the message
         :return None: None
         """
 
-        self.print_empty(message, f"{start}Usage:", end)
+        self.print_empty(message, f"{start}Usage:", *args, **kwargs)
 
-    def print_process(self, message: str, start: str = '%remove', end: str = '%newline') -> None:
+    def print_process(self, message: str, start: str = '%remove', *args, **kwargs) -> None:
         """ Print string with [*] start.
 
         :param str message: message to print
         :param str start: string to print before the message
-        :param str end: string to print after the message
         :return None: None
         """
 
-        self.print_empty(message, f"{start}%bold%blue[*]%end ", end)
+        self.print_empty(message, f"{start}%bold%blue[*]%end ", *args, **kwargs)
 
-    def print_success(self, message: str, start: str = '%remove', end: str = '%newline') -> None:
+    def print_success(self, message: str, start: str = '%remove', *args, **kwargs) -> None:
         """ Print string with [+] start.
 
         :param str message: message to print
         :param str start: string to print before the message
-        :param str end: string to print after the message
         :return None: None
         """
 
-        self.print_empty(message, f"{start}%bold%green[+]%end ", end)
+        self.print_empty(message, f"{start}%bold%green[+]%end ", *args, **kwargs)
 
-    def print_error(self, message: str, start: str = '%remove', end: str = '%newline') -> None:
+    def print_error(self, message: str, start: str = '%remove', *args, **kwargs) -> None:
         """ Print string with [-] start.
 
         :param str message: message to print
         :param str start: string to print before the message
-        :param str end: string to print after the message
         :return None: None
         """
 
-        self.print_empty(message, f"{start}%bold%red[-]%end ", end)
+        self.print_empty(message, f"{start}%bold%red[-]%end ", *args, **kwargs)
 
-    def print_warning(self, message: str, start: str = '%remove', end: str = '%newline') -> None:
+    def print_warning(self, message: str, start: str = '%remove', *args, **kwargs) -> None:
         """ Print string with [!] start.
 
         :param str message: message to print
         :param str start: string to print before the message
-        :param str end: string to print after the message
         :return None: None
         """
 
-        self.print_empty(message, f"{start}%bold%yellow[!]%end ", end)
+        self.print_empty(message, f"{start}%bold%yellow[!]%end ", *args, **kwargs)
 
-    def print_information(self, message: str, start: str = '%remove', end: str = '%newline') -> None:
+    def print_information(self, message: str, start: str = '%remove', *args, **kwargs) -> None:
         """ Print string with [i] start.
 
         :param str message: message to print
         :param str start: string to print before the message
-        :param str end: string to print after the message
         :return None: None
         """
 
-        self.print_empty(message, f"{start}%bold%white[i]%end ", end)
+        self.print_empty(message, f"{start}%bold%white[i]%end ", *args, **kwargs)
