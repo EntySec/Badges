@@ -7,6 +7,9 @@
     <a href="https://github.com/EntySec/Badges">
         <img src="https://img.shields.io/badge/language-Python-blue.svg">
     </a>
+    <a href="https://github.com/EntySec/Badges/forks">
+        <img src="https://img.shields.io/github/forks/EntySec/Badges?color=green">
+    </a>
     <a href="https://github.com/EntySec/Badges/stargazers">
         <img src="https://img.shields.io/github/stars/EntySec/Badges?color=yellow">
     </a>
