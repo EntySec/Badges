@@ -1,5 +1,17 @@
 # Badges
 
+<p>
+    <a href="https://entysec.com">
+        <img src="https://img.shields.io/badge/developer-EntySec-blue.svg">
+    </a>
+    <a href="https://github.com/EntySec/Badges">
+        <img src="https://img.shields.io/badge/language-Python-blue.svg">
+    </a>
+    <a href="https://github.com/EntySec/Badges/stargazers">
+        <img src="https://img.shields.io/github/stars/EntySec/Badges?color=yellow">
+    </a>
+</p>
+
 Badges is a Python3 library that is used for advanced and intuitive printing.
 
 ## Features
