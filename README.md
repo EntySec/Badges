@@ -13,6 +13,9 @@
     <a href="https://github.com/EntySec/Badges/stargazers">
         <img src="https://img.shields.io/github/stars/EntySec/Badges?color=yellow">
     </a>
+    <a href="https://www.codefactor.io/repository/github/EntySec/Badges">
+        <img src="https://www.codefactor.io/repository/github/EntySec/Badges/badge">
+    </a>
 </p>
 
 Badges is a Python3 library that is used for advanced and intuitive printing.
