@@ -61,8 +61,8 @@ class IO(object):
 
         self.color_script = ColorScript()
 
-    def print(self, message: str = '', start: str = '%remove',
-              end: str = '%newline', translate: bool = True) -> None:
+    def print(self, message: str = '', start: str = '%remove', end: str = '%newline',
+              translate: bool = True) -> None:
         """ Print string.
 
         :param str message: message to print
@@ -97,7 +97,7 @@ class IO(object):
                             full_message.append(self.translator.translate(word))
                             continue
 
-                        except Exception:
+                        except BaseException:
                             pass
 
                     full_message.append(word)
