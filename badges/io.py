@@ -55,14 +55,14 @@ class IO(object):
         if lang:
             self.translator = Translator(to_lang=lang)
         else:
+            self.translator = None
+
             if os.path.exists(self.setting):
                 with open(self.setting, 'r') as f:
                     lang = f.read().strip()
 
                     if lang:
                         self.translator = Translator(to_lang=lang)
-
-            self.translator = None
 
         self.dictionary = dictionary
         self.log = log
