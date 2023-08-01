@@ -59,8 +59,8 @@ class IO(object):
                 with open(self.setting, 'r') as f:
                     lang = f.read().strip()
 
-                if lang:
-                    self.translator = lang
+                    if lang:
+                        self.translator = Translator(to_lang=lang)
 
             self.translator = None
 
