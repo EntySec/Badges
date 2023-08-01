@@ -50,14 +50,23 @@ class IO(object):
 
         super().__init__()
 
+        self.setting = f'{os.path.dirname(__file__)}/lang.txt'
+
         if lang:
             self.translator = Translator(to_lang=lang)
         else:
+            if os.path.exists(self.setting):
+                with open(self.setting, 'r') as f:
+                    lang = f.read().strip()
+
+                if lang:
+                    self.translator = lang
+
             self.translator = None
 
         self.dictionary = dictionary
         self.log = log
-        self.sep = ':::'
+        self.sep = '='
 
         self.color_script = ColorScript()
 
