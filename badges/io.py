@@ -70,7 +70,7 @@ class IO(object):
 
         self.color_script = ColorScript()
 
-    def input(self, message: str = '', start: str = '%remove', end: str = '',
+    def input(self, message: str = '', start: str = '%end%remove', end: str = '',
               translate: bool = True) -> None:
         """ Input string.
 
