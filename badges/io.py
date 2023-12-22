@@ -70,6 +70,68 @@ class IO(object):
 
         self.color_script = ColorScript()
 
+    def input(self, message: str = '', start: str = '%remove', end: str = '',
+              translate: bool = True) -> None:
+        """ Input string.
+
+        :param str message: message to print
+        :param str start: string to print before the message
+        :param str end: string to print after the message
+        :param bool translate: True to translate else False
+        :return None: None
+        """
+
+        if self.translator and translate and \
+                  message and not message.isspace():
+            found = False
+
+            if self.dictionary and os.path.exists(self.dictionary):
+                with open(self.dictionary, 'r') as f:
+                    messages = f.readlines()
+                    message_dict = {
+                        entry.split(self.sep)[0]: entry.split(self.sep)[1].strip() for entry in messages
+                    }
+
+                    if message in message_dict:
+                        message = message_dict[message]
+                        found = True
+
+            if not found:
+                old_message = message
+                full_message = []
+
+                for word in message.split():
+                    if not any(command in word for command in self.color_script.commands):
+                        try:
+                            full_message.append(self.translator.translate(word))
+                            continue
+
+                        except BaseException:
+                            pass
+
+                    full_message.append(word)
+
+                message = ' '.join(full_message)
+
+                if self.dictionary:
+                    with open(self.dictionary, 'a') as f:
+                        f.write(f'{old_message}:{message}\n')
+                        f.flush()
+
+        line = self.color_script.parse(start + message + end)
+
+        sys.stdout.write(line)
+        sys.stdout.flush()
+
+        data = input()
+
+        if self.log:
+            with open(self.log, 'a') as f:
+                f.write(line + data + '\n')
+                f.flush()
+
+        return data
+
     def print(self, message: str = '', start: str = '%remove', end: str = '%newline',
               translate: bool = True) -> None:
         """ Print string.
