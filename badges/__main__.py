@@ -104,3 +104,31 @@ class Badges(object):
         """
 
         self.print_empty(message, f"{start}%bold%white[i]%end ", *args, **kwargs)
+
+    def input_empty(self, *args, **kwargs) -> list:
+        """ Input string with empty start.
+
+        :return str: string
+        """
+
+        return self.io.input(*args, **kwargs)
+
+    def input_question(self, message: str, start: str = '%remove%end', *args, **kwargs) -> list:
+        """ Input string with [?] start.
+
+        :param str message: message to print
+        :param str start: string to print before the message
+        :return str: string
+        """
+
+        return self.input_empty(message, f"{start}%bold%white[?]%end ", *args, **kwargs)
+
+    def input_arrow(self, message: str, start: str = '%remove%end', *args, **kwargs) -> list:
+        """ Input string with [>] start.
+
+        :param str message: message to print
+        :param str start: string to print before the message
+        :return str: string
+        """
+
+        return self.input_empty(message, f"{start}%bold%white[>]%end ", *args, **kwargs)
