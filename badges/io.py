@@ -119,11 +119,7 @@ class IO(object):
                         f.flush()
 
         line = self.color_script.parse(start + message + end)
-
-        sys.stdout.write(line)
-        sys.stdout.flush()
-
-        data = input()
+        data = input(line)
 
         if self.log:
             with open(self.log, 'a') as f:
