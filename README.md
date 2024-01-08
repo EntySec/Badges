@@ -1,22 +1,10 @@
 # Badges
 
-<p>
-    <a href="https://entysec.com">
-        <img src="https://img.shields.io/badge/developer-EntySec-blue.svg">
-    </a>
-    <a href="https://github.com/EntySec/Badges">
-        <img src="https://img.shields.io/badge/language-Python-blue.svg">
-    </a>
-    <a href="https://github.com/EntySec/Badges/forks">
-        <img src="https://img.shields.io/github/forks/EntySec/Badges?color=green">
-    </a>
-    <a href="https://github.com/EntySec/Badges/stargazers">
-        <img src="https://img.shields.io/github/stars/EntySec/Badges?color=yellow">
-    </a>
-    <a href="https://www.codefactor.io/repository/github/EntySec/Badges">
-        <img src="https://www.codefactor.io/repository/github/EntySec/Badges/badge">
-    </a>
-</p>
+[![Developer](https://img.shields.io/badge/developer-EntySec-blue.svg)](https://entysec.com)
+[![Language](https://img.shields.io/badge/language-Python-blue.svg)](https://github.com/EntySec/Badges)
+[![Forks](https://img.shields.io/github/forks/EntySec/Badges?style=flat&color=green)](https://github.com/EntySec/Badges/forks)
+[![Stars](https://img.shields.io/github/stars/EntySec/Badges?style=flat&color=yellow)](https://github.com/EntySec/Badges/stargazers)
+[![CodeFactor](https://www.codefactor.io/repository/github/EntySec/Badges/badge)](https://www.codefactor.io/repository/github/EntySec/Badges)
 
 Badges is a Python3 library that is used for advanced and intuitive printing.
 
