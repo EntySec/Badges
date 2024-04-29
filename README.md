@@ -25,6 +25,6 @@ pip3 install git+https://github.com/EntySec/Badges
 ```python3
 from badges import Badges
 
-badges = Badges(lang='ru', dictionary='/home/parrot/l10n.txt')
+badges = Badges()
 badges.print_success("Hello, world!")
 ```

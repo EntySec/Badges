@@ -35,7 +35,6 @@ setup(name='badges',
       packages=find_packages(),
       include_package_data=True,
       install_requires=[
-            'translate',
             'colorscript @ git+https://github.com/EntySec/ColorScript'
       ],
       zip_safe=False

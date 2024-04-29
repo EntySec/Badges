@@ -24,9 +24,9 @@ SOFTWARE.
 
 import os
 import sys
+import getch
 
 from typing import Optional
-from translate import Translator
 from colorscript import ColorScript
 
 
@@ -37,88 +37,76 @@ class IO(object):
     providing an implementation of I/O.
     """
 
-    def __init__(self, lang: Optional[str] = None,
-                 dictionary: Optional[str] = None,
-                 log: Optional[str] = None) -> None:
+    def __init__(self,
+                 log: Optional[str] = None,
+                 less_support: bool = True) -> None:
         """ Initialize I/O.
 
-        :param Optional[str] lang: language to translate to
-        :param Optional[str] dictionary: path to save translated messages
         :param Optional[str] log: log to file
+        :param bool less_support: support printing big data in less format
         :return None: None
         """
 
         super().__init__()
 
-        self.setting = f'{os.path.dirname(__file__)}/lang.txt'
-
-        if lang:
-            self.translator = Translator(to_lang=lang)
-        else:
-            self.translator = None
-
-            if os.path.exists(self.setting):
-                with open(self.setting, 'r') as f:
-                    lang = f.read().strip()
-
-                    if lang:
-                        self.translator = Translator(to_lang=lang)
-
-        self.dictionary = dictionary
         self.log = log
-        self.sep = '='
+        self.less_support = less_support
 
         self.color_script = ColorScript()
 
-    def input(self, message: str = '', start: str = '%end%remove', end: str = '',
-              translate: bool = True) -> None:
+    def less(self, data: str) -> None:
+        """ Print data in less format.
+
+        :param str data: data to print
+        :return None: None
+        """
+
+        columns, rows = os.get_terminal_size()
+
+        lines = data.split('\n')
+        num_lines = len(lines)
+        start_index = 0
+        end_index = rows - 2
+
+        while start_index < num_lines:
+            for line in range(start_index, min(end_index + 1, num_lines)):
+                if line == num_lines - 1:
+                    sys.stdout.write(lines[line])
+                    sys.stdout.flush()
+                else:
+                    sys.stdout.write(lines[line] + '\n')
+                    sys.stdout.flush()
+
+            if end_index >= num_lines - 1:
+                break
+
+            sys.stdout.write("Press Enter for more, or 'q' to quit:")
+            sys.stdout.flush()
+
+            user_input = ''
+
+            while user_input not in ['\n', 'q']:
+                user_input = getch.getch()
+
+            sys.stdout.write(self.color_script.parse('%remove'))
+            sys.stdout.flush()
+
+            if user_input == 'q':
+                return
+
+            start_index = end_index + 1
+            end_index = start_index
+
+    def input(self, message: str = '', start: str = '%end%remove', end: str = '') -> None:
         """ Input string.
 
         :param str message: message to print
         :param str start: string to print before the message
         :param str end: string to print after the message
-        :param bool translate: True to translate else False
         :return None: None
         """
 
-        if self.translator and translate and \
-                  message and not message.isspace():
-            found = False
-
-            if self.dictionary and os.path.exists(self.dictionary):
-                with open(self.dictionary, 'r') as f:
-                    messages = f.readlines()
-                    message_dict = {
-                        entry.split(self.sep)[0]: entry.split(self.sep)[1].strip() for entry in messages
-                    }
-
-                    if message in message_dict:
-                        message = message_dict[message]
-                        found = True
-
-            if not found:
-                old_message = message
-                full_message = []
-
-                for word in message.split():
-                    if not any(command in word for command in self.color_script.commands):
-                        try:
-                            full_message.append(self.translator.translate(word))
-                            continue
-
-                        except BaseException:
-                            pass
-
-                    full_message.append(word)
-
-                message = ' '.join(full_message)
-
-                if self.dictionary:
-                    with open(self.dictionary, 'a') as f:
-                        f.write(f'{old_message}:{message}\n')
-                        f.flush()
-
-        line = self.color_script.parse(start + message + end)
+        line = self.color_script.parse(str(start) + str(message) + str(end))
         data = input(line)
 
         if self.log:
@@ -128,58 +116,22 @@ class IO(object):
 
         return data
 
-    def print(self, message: str = '', start: str = '%remove', end: str = '%newline',
-              translate: bool = True) -> None:
+    def print(self, message: str = '', start: str = '%remove', end: str = '%newline') -> None:
         """ Print string.
 
         :param str message: message to print
         :param str start: string to print before the message
         :param str end: string to print after the message
-        :param bool translate: True to translate else False
         :return None: None
         """
 
-        if self.translator and translate and \
-                  message and not message.isspace():
-            found = False
+        line = self.color_script.parse(str(start) + str(message) + str(end))
 
-            if self.dictionary and os.path.exists(self.dictionary):
-                with open(self.dictionary, 'r') as f:
-                    messages = f.readlines()
-                    message_dict = {
-                        entry.split(self.sep)[0]: entry.split(self.sep)[1].strip() for entry in messages
-                    }
-
-                    if message in message_dict:
-                        message = message_dict[message]
-                        found = True
-
-            if not found:
-                old_message = message
-                full_message = []
-
-                for word in message.split():
-                    if not any(command in word for command in self.color_script.commands):
-                        try:
-                            full_message.append(self.translator.translate(word))
-                            continue
-
-                        except BaseException:
-                            pass
-
-                    full_message.append(word)
-
-                message = ' '.join(full_message)
-
-                if self.dictionary:
-                    with open(self.dictionary, 'a') as f:
-                        f.write(f'{old_message}:{message}\n')
-                        f.flush()
-
-        line = self.color_script.parse(start + message + end)
-
-        sys.stdout.write(line)
-        sys.stdout.flush()
+        if self.less_support:
+            self.less(line)
+        else:
+            sys.stdout.write(line)
+            sys.stdout.flush()
 
         if self.log:
             with open(self.log, 'a') as f:
