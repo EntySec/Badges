@@ -25,17 +25,15 @@ SOFTWARE.
 from .io import IO
 
 
-class Badges(object):
+class Badges(IO):
     """ Main class of badges module.
 
     This main class of badges module is intended for
     providing various printing interfaces.
     """
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self) -> None:
         super().__init__()
-
-        self.io = IO(*args, **kwargs)
 
     def print_empty(self, *args, **kwargs) -> None:
         """ Print string with empty start.
@@ -43,7 +41,7 @@ class Badges(object):
         :return None: None
         """
 
-        self.io.print(*args, **kwargs)
+        self.print(*args, **kwargs)
 
     def print_usage(self, message: str, start: str = '%remove', *args, **kwargs) -> None:
         """ Print string with Usage: start.
@@ -111,7 +109,7 @@ class Badges(object):
         :return str: string
         """
 
-        return self.io.input(*args, **kwargs)
+        return self.input(*args, **kwargs)
 
     def input_question(self, message: str, start: str = '%remove%end', *args, **kwargs) -> list:
         """ Input string with [?] start.

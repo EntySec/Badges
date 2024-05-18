@@ -25,6 +25,7 @@ SOFTWARE.
 import os
 import sys
 import getch
+import readline
 
 from typing import Optional
 from colorscript import ColorScript
@@ -37,24 +38,37 @@ class IO(object):
     providing an implementation of I/O.
     """
 
-    def __init__(self,
-                 log: Optional[str] = None,
-                 less_support: bool = True) -> None:
+    def __init__(self) -> None:
         """ Initialize I/O.
 
-        :param Optional[str] log: log to file
-        :param bool less_support: support printing big data in less format
         :return None: None
         """
 
         super().__init__()
 
-        self.log = log
-        self.less_support = less_support
-
         self.color_script = ColorScript()
 
-    def less(self, data: str) -> None:
+    @staticmethod
+    def set_log(log: str) -> None:
+        """ Set log path.
+
+        :param str log: log path
+        :return None: None
+        """
+
+        globals()['log'] = log
+
+    @staticmethod
+    def set_less(less: bool) -> None:
+        """ Enable/disable less-like output.
+
+        :param bool less: True or False
+        :return None: None
+        """
+
+        globals()['less'] = less
+
+    def print_less(self, data: str) -> None:
         """ Print data in less format.
 
         :param str data: data to print
@@ -107,10 +121,13 @@ class IO(object):
         """
 
         line = self.color_script.parse(str(start) + str(message) + str(end))
+        use_log = globals().get("log")
+
+        globals()['prompt'] = line
         data = input(line)
 
-        if self.log:
-            with open(self.log, 'a') as f:
+        if use_log:
+            with open(use_log, 'a') as f:
                 f.write(line + data + '\n')
                 f.flush()
 
@@ -127,13 +144,21 @@ class IO(object):
 
         line = self.color_script.parse(str(start) + str(message) + str(end))
 
-        if self.less_support:
-            self.less(line)
+        use_log = globals().get("log")
+        use_less = globals().get("less")
+
+        if use_less:
+            self.print_less(line)
         else:
             sys.stdout.write(line)
             sys.stdout.flush()
 
-        if self.log:
-            with open(self.log, 'a') as f:
+        if use_log:
+            with open(use_log, 'a') as f:
                 f.write(line)
                 f.flush()
+
+        prompt = globals().get("prompt")
+        if prompt:
+            sys.stdout.write(prompt + readline.get_line_buffer())
+            sys.stdout.flush()

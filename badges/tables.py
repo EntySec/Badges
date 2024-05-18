@@ -33,10 +33,10 @@ class Tables(object):
     print data as a table.
     """
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self) -> None:
         super().__init__()
 
-        self.badges = Badges(*args, **kwargs)
+        self.badges = Badges()
 
     def print_table(self, name: str, headers: tuple, *args, **kwargs) -> None:
         """ Print table.
