@@ -120,7 +120,7 @@ class IO(object):
         :return None: None
         """
 
-        line = self.color_script.parse(str(start) + str(message) + str(end))
+        line = self.color_script.parse_input(str(start) + str(message) + str(end))
         use_log = globals().get("log")
 
         globals()['prompt'] = line
