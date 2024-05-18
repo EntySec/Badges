@@ -43,6 +43,8 @@ class Tables(object):
     def print_table(self, name: str, headers: tuple, *args, **kwargs) -> None:
         """ Print table.
 
+        TODO: This is very very bad and not optimized code.
+
         Usage example: print_table('Example', ('Col1', 'Col2'), *[(1,2),(3,4)])
         Sample output:
 
@@ -77,8 +79,9 @@ class Tables(object):
                 return 0
 
         for idx, header in enumerate(headers):
+            header = str(header)
             header = self.colorscript.strip(header)
-            column = [custom_len(self.colorscript.parse(arg[idx])) for arg in args]
+            column = [custom_len(self.colorscript.parse(str(arg[idx]))) for arg in args]
             column.append(len(header))
 
             current_line_fill = max(column) + extra_fill
