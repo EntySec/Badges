@@ -131,6 +131,7 @@ class IO(object):
                 f.write(line + data + '\n')
                 f.flush()
 
+        globals().pop('prompt')
         return data
 
     def print(self, message: str = '', start: str = '%remove', end: str = '%newline') -> None:
