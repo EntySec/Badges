@@ -144,11 +144,9 @@ class IO(object):
         """
 
         line = self.color_script.parse(str(start) + str(message) + str(end))
-
         use_log = globals().get("log")
-        use_less = globals().get("less")
 
-        if use_less:
+        if 'less' not in globals() or globals().get("less"):
             self.print_less(line)
         else:
             sys.stdout.write(line)
