@@ -64,18 +64,21 @@ class Tables(object):
         if not all(map(lambda x: len(x) == len(headers), args)):
             return
 
+        fill = []
+        headers_line = ' ' * 4
+
         def custom_len(x):
             x = str(x)
             try:
-                return len(self.colorscript.strip(x))
+                if '\033' in x:
+                    return len(x) - 9 * x.count('\033') // 2
+                return len(x)
             except TypeError:
                 return 0
 
-        fill = []
-        headers_line = '    '
-
         for idx, header in enumerate(headers):
-            column = [custom_len(arg[idx]) for arg in args]
+            header = self.colorscript.strip(header)
+            column = [custom_len(self.colorscript.parse(arg[idx])) for arg in args]
             column.append(len(header))
 
             current_line_fill = max(column) + extra_fill
@@ -95,7 +98,7 @@ class Tables(object):
         for arg in args:
             content_line = "    "
             for idx, element in enumerate(arg):
-                element = str(element)
+                element = self.colorscript.parse(str(element))
                 fill_line = fill[idx]
 
                 if '\033' in element:
