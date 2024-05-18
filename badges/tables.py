@@ -23,6 +23,7 @@ SOFTWARE.
 """
 
 from .__main__ import Badges
+from colorscript import ColorScript
 
 
 class Tables(object):
@@ -37,6 +38,7 @@ class Tables(object):
         super().__init__()
 
         self.badges = Badges()
+        self.colorscript = ColorScript()
 
     def print_table(self, name: str, headers: tuple, *args, **kwargs) -> None:
         """ Print table.
@@ -65,9 +67,7 @@ class Tables(object):
         def custom_len(x):
             x = str(x)
             try:
-                if '\033' in x:
-                    return len(x) - 9 * x.count('\033') // 2
-                return len(x)
+                return len(self.colorscript.strip(x))
             except TypeError:
                 return 0
 
