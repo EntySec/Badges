@@ -23,11 +23,13 @@ SOFTWARE.
 """
 
 import os
+import io
 import sys
 import getch
 import readline
 
-from typing import Optional
+from contextlib import redirect_stdout, redirect_stderr
+from typing import Optional, Callable, Any
 from colorscript import ColorScript
 
 
@@ -58,15 +60,18 @@ class IO(object):
 
         globals()['log'] = log
 
-    @staticmethod
-    def set_less(less: bool) -> None:
-        """ Enable/disable less-like output.
+    def print_function(self, target: Callable[..., Any], *args, **kwargs) -> None:
+        """ Execute function and print its stdout.
 
-        :param bool less: True or False
+        :param Callable[..., Any] target: function
         :return None: None
         """
 
-        globals()['less'] = less
+        with io.StringIO() as buf, redirect_stdout(buf), redirect_stderr(buf):
+            target(*args, **kwargs)
+            output = buf.getvalue()
+
+        self.print_less(output)
 
     def print_less(self, data: str) -> None:
         """ Print data in less format.
@@ -146,11 +151,8 @@ class IO(object):
         line = self.color_script.parse(str(start) + str(message) + str(end))
         use_log = globals().get("log")
 
-        if 'less' not in globals() or globals().get("less"):
-            self.print_less(line)
-        else:
-            sys.stdout.write(line)
-            sys.stdout.flush()
+        sys.stdout.write(line)
+        sys.stdout.flush()
 
         if use_log:
             with open(use_log, 'a') as f:
