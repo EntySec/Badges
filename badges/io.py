@@ -60,18 +60,19 @@ class IO(object):
 
         globals()['log'] = log
 
-    def print_function(self, target: Callable[..., Any], *args, **kwargs) -> None:
+    def print_function(self, target: Callable[..., Any], *args, **kwargs) -> Any:
         """ Execute function and print its stdout.
 
         :param Callable[..., Any] target: function
-        :return None: None
+        :return Any: function return value
         """
 
         with io.StringIO() as buf, redirect_stdout(buf), redirect_stderr(buf):
-            target(*args, **kwargs)
+            result = target(*args, **kwargs)
             output = buf.getvalue()
 
         self.print_less(output)
+        return result
 
     def print_less(self, data: str) -> None:
         """ Print data in less format.
