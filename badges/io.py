@@ -60,6 +60,16 @@ class IO(object):
 
         globals()['log'] = log
 
+    @staticmethod
+    def set_less(less: bool) -> None:
+        """ Enable/disable less-like output.
+
+        :param bool less: True to enable, False to disable
+        :return None: None
+        """
+
+        globals()['less'] = less
+
     def print_function(self, target: Callable[..., Any], *args, **kwargs) -> Any:
         """ Execute function and print its stdout.
 
@@ -151,8 +161,13 @@ class IO(object):
 
         line = self.color_script.parse(str(start) + str(message) + str(end))
         use_log = globals().get("log")
+        use_less = globals().get("less", True)
 
-        self.print_less(line)
+        if use_less:
+            self.print_less(line)
+        else:
+            sys.stdout.write(line)
+            sys.stdout.flush()
 
         if use_log:
             with open(use_log, 'a') as f:
