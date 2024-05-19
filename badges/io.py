@@ -152,8 +152,7 @@ class IO(object):
         line = self.color_script.parse(str(start) + str(message) + str(end))
         use_log = globals().get("log")
 
-        sys.stdout.write(line)
-        sys.stdout.flush()
+        self.print_less(line)
 
         if use_log:
             with open(use_log, 'a') as f:
