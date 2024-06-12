@@ -28,6 +28,7 @@ import sys
 import getch
 import readline
 
+from datetime import datetime
 from contextlib import redirect_stdout, redirect_stderr
 from typing import Optional, Callable, Any
 from colorscript import ColorScript
@@ -150,14 +151,18 @@ class IO(object):
         globals().pop('prompt')
         return data
 
-    def print(self, message: str = '', start: str = '%remove', end: str = '%newline') -> None:
+    def print(self, message: str = '', start: str = '%remove', end: str = '%newline', time: bool = False) -> None:
         """ Print string.
 
         :param str message: message to print
         :param str start: string to print before the message
         :param str end: string to print after the message
+        :param bool time: show timestamp after start
         :return None: None
         """
+
+        if time:
+            start = str(start) + datetime.now().strftime('%H:%M:%S - ')
 
         line = self.color_script.parse(str(start) + str(message) + str(end))
         use_log = globals().get("log")
