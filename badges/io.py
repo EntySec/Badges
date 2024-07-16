@@ -47,8 +47,6 @@ class IO(object):
         :return None: None
         """
 
-        super().__init__()
-
         self.color_script = ColorScript()
 
     @staticmethod

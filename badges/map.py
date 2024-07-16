@@ -66,8 +66,6 @@ class Map(object):
         :return None: None
         """
 
-        super().__init__()
-
         self.map = MAPS[map_name]
         self.dot = ColorScript().parse(dot)
         self.data = self.map['data'].splitlines()
