@@ -35,6 +35,8 @@ class Tables(object):
     """
 
     def __init__(self) -> None:
+        super().__init__()
+
         self.badges = Badges()
         self.colorscript = ColorScript()
 
