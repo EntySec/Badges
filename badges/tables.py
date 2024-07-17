@@ -34,11 +34,8 @@ class Tables(object):
     print data as a table.
     """
 
-    def __init__(self) -> None:
-        super().__init__()
-
-        self.badges = Badges()
-        self.colorscript = ColorScript()
+    badges = Badges()
+    colorscript = ColorScript()
 
     def print_table(self, name: str, headers: tuple, *args, **kwargs) -> None:
         """ Print table.
