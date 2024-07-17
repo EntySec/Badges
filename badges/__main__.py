@@ -32,9 +32,6 @@ class Badges(IO):
     providing various printing interfaces.
     """
 
-    def __init__(self) -> None:
-        super().__init__()
-
     def print_empty(self, *args, **kwargs) -> None:
         """ Print string with empty start.
 
