@@ -29,9 +29,10 @@ import getch
 import readline
 
 from datetime import datetime
-from contextlib import redirect_stdout, redirect_stderr
-from typing import Optional, Callable, Any
 from colorscript import ColorScript
+
+from typing import Callable, Any
+from contextlib import redirect_stdout, redirect_stderr
 
 
 class IO(object):
@@ -41,15 +42,7 @@ class IO(object):
     providing an implementation of I/O.
     """
 
-    def __init__(self) -> None:
-        """ Initialize I/O.
-
-        :return None: None
-        """
-
-        super().__init__()
-
-        self.color_script = ColorScript()
+    color_script = ColorScript()
 
     @staticmethod
     def set_log(log: str) -> None:
