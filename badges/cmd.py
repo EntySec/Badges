@@ -158,9 +158,15 @@ class Cmd(Tables, Badges):
                 continue
 
             self.external[name] = info
+            self.complete[name] = {}
 
             if 'Complete' in info:
-                self.completer[name] = info['Complete']
+                self.complete[name].update(info['Complete'])
+
+            if 'Options' in info:
+                self.complete[name].update(
+                    {k: None if v[0] == '' else {o: None for o in v[0].split()}
+                     for k, v in info['Options'].items()})
 
     def load_external(self, path: Optional[str] = None, **kwargs) -> None:
         """ Load/reload external commands.
@@ -188,7 +194,12 @@ class Cmd(Tables, Badges):
 
                 self.external[name] = {'Method': object.run}
                 self.external[name].update(object.info)
+
                 self.complete[name] = object.complete
+                if 'Options' in object.info:
+                    self.complete[name].update(
+                        {k: None if v[0] == '' else {o: None for o in v[0].split()}
+                         for k, v in object.info['Options'].items()})
 
             except Exception as e:
                 self.print_error(f"Failed to load {file[:-3]} command!")
