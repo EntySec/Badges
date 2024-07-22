@@ -36,6 +36,7 @@ setup(name='badges',
       include_package_data=True,
       install_requires=[
             'getch',
+            'prompt-toolkit',
             'colorscript @ git+https://github.com/EntySec/ColorScript'
       ],
       zip_safe=False

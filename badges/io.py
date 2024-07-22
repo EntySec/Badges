@@ -26,13 +26,16 @@ import os
 import io
 import sys
 import getch
-import readline
 
 from datetime import datetime
 from colorscript import ColorScript
 
 from typing import Callable, Any
 from contextlib import redirect_stdout, redirect_stderr
+
+from prompt_toolkit import PromptSession
+from prompt_toolkit.history import FileHistory
+from prompt_toolkit.formatted_text import ANSI
 
 
 class IO(object):
@@ -41,8 +44,6 @@ class IO(object):
     This subclass of badges module is intended for
     providing an implementation of I/O.
     """
-
-    color_script = ColorScript()
 
     @staticmethod
     def set_log(log: str) -> None:
@@ -53,6 +54,16 @@ class IO(object):
         """
 
         globals()['log'] = log
+
+    @staticmethod
+    def set_history(history: str) -> None:
+        """ Set history path.
+
+        :param str history: history path
+        :return None: None
+        """
+
+        globals()['history'] = history
 
     @staticmethod
     def set_less(less: bool) -> None:
@@ -78,7 +89,8 @@ class IO(object):
         self.print_less(output)
         return result
 
-    def print_less(self, data: str) -> None:
+    @staticmethod
+    def print_less(data: str) -> None:
         """ Print data in less format.
 
         :param str data: data to print
@@ -112,7 +124,7 @@ class IO(object):
             while user_input not in ['\n', 'q']:
                 user_input = getch.getch()
 
-            sys.stdout.write(self.color_script.parse('%remove'))
+            sys.stdout.write(ColorScript().parse('%remove'))
             sys.stdout.flush()
 
             if user_input == 'q':
@@ -121,7 +133,8 @@ class IO(object):
             start_index = end_index + 1
             end_index = start_index
 
-    def input(self, message: str = '', start: str = '%end%remove', end: str = '') -> None:
+    @staticmethod
+    def input(message: str = '', start: str = '%end', end: str = '') -> None:
         """ Input string.
 
         :param str message: message to print
@@ -130,11 +143,21 @@ class IO(object):
         :return None: None
         """
 
-        line = self.color_script.parse_input(str(start) + str(message) + str(end))
+        if 'prompt_session' not in globals():
+            history = globals().get('history', None)
+
+            if history:
+                globals()['prompt_session'] = PromptSession(
+                    history=FileHistory(history))
+            else:
+                globals()['prompt_session'] = PromptSession()
+
+        session = globals()['prompt_session']
+        line = ColorScript().parse(str(start) + str(message) + str(end))
         use_log = globals().get("log")
 
         globals()['prompt'] = line
-        data = input(line)
+        data = session.prompt(ANSI(line))
 
         if use_log:
             with open(use_log, 'a') as f:
@@ -144,7 +167,7 @@ class IO(object):
         globals().pop('prompt')
         return data
 
-    def print(self, message: str = '', start: str = '%remove', end: str = '%newline', time: bool = False) -> None:
+    def print(self, message: str = '', start: str = '%remove%end', end: str = '%newline', time: bool = False) -> None:
         """ Print string.
 
         :param str message: message to print
@@ -157,7 +180,7 @@ class IO(object):
         if time:
             start = str(start) + datetime.now().strftime('%H:%M:%S - ')
 
-        line = self.color_script.parse(str(start) + str(message) + str(end))
+        line = ColorScript().parse(str(start) + str(message) + str(end))
         use_log = globals().get("log")
         use_less = globals().get("less", True)
 
