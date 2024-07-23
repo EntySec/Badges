@@ -107,7 +107,9 @@ class Cmd(Tables, Badges):
         """
 
         self.intro = ColorScript().parse(intro)
-        self.prompt = ColorScript().parse(prompt)
+        self.prompt = prompt
+
+        self.set_prompt(prompt)
 
         self.internal = []
         self.external = {}
@@ -134,6 +136,15 @@ class Cmd(Tables, Badges):
                 complete_while_typing=True,
                 auto_suggest=AutoSuggestFromHistory()
             )
+
+    def set_prompt(self, prompt: str) -> None:
+        """ Set prompt message.
+
+        :param str prompt: prompt message
+        :return None: None
+        """
+
+        self.prompt = ColorScript().parse(prompt)
 
     def delete_external(self, name: str) -> None:
         """ Delete external command.
@@ -206,6 +217,32 @@ class Cmd(Tables, Badges):
                 self.print_error(str(e))
 
             self.completer = NestedCompleter.from_nested_dict(self.complete)
+
+    def do_exit(self, _) -> None:
+        """ Exit console.
+
+        :return None: None
+        :raises EOFError: EOF error
+        """
+
+        raise EOFError
+
+    def do_quit(self, _) -> None:
+        """ Exit console.
+
+        :return None: None
+        :raises EOFError: EOF error
+        """
+
+        raise EOFError
+
+    def do_clear(self, _) -> None:
+        """ Clear terminal window.
+
+        :return None: None
+        """
+
+        self.print_empty('%clear', end='')
 
     def do_help(self, _) -> None:
         """ Show all available commands.
@@ -330,20 +367,30 @@ class Cmd(Tables, Badges):
             self.print_empty(self.intro)
 
         while True:
-            with patch_stdout(raw=True):
-                line = self.session.prompt(
-                    ANSI(self.prompt), completer=self.completer)
+            try:
+                with patch_stdout(raw=True):
+                    line = self.session.prompt(
+                        ANSI(self.prompt), completer=self.completer)
 
-            if line is None:
+                if line is None:
+                    break
+
+                line = line.strip()
+
+                if not line:
+                    self.emptyline()
+                    continue
+
+                line = self.precmd(line)
+                line = self.onecmd(line)
+                self.postcmd(line)
+
+            except (EOFError, KeyboardInterrupt):
+                self.print_empty(end='')
                 break
 
-            args = String().split_args(line)
-
-            if not args:
-                continue
-
-            args = self.precmd(args)
-            self.postcmd(self.onecmd(args))
+            except Exception as e:
+                self.print_error(f"An error occurred: {str(e)}!")
 
         self.postloop()
 
@@ -363,34 +410,36 @@ class Cmd(Tables, Badges):
 
         return
 
-    def precmd(self, args: list) -> list:
+    def precmd(self, line: str) -> str:
         """ Do something before executing command.
 
-        :param list args: list of args
+        :param str line: command line
         :return str: command
         """
 
-        return args
+        return line
 
-    def postcmd(self, args: list) -> None:
+    def postcmd(self, line: str) -> None:
         """ Do something after command execution.
 
-        :param list args: list of args
+        :param str line: command line
         :return None: None
         """
 
         return
 
-    def onecmd(self, args: list) -> Tuple[int, list]:
+    def onecmd(self, line: str) -> Tuple[int, list]:
         """ Execute single command.
 
-        :param list args: list of args
+        :param str line: line
         :return Any: command result
         """
 
+        args = String().split_args(line)
+
         if args[0] in self.internal:
             getattr(self, 'do_' + args[0])(args)
-            return args
+            return line
 
         status, name = self.verify_command(args)
 
@@ -404,13 +453,21 @@ class Cmd(Tables, Badges):
             else:
                 command['Method'](fixed)
 
-            return fixed
+            return ' '.join(fixed)
 
         if name is not None:
             self.print_warning(f"Did you mean? {', '.join(name)}")
 
         self.default(args)
-        return args
+        return line
+
+    def emptyline(self) -> None:
+        """ Do something on empty line.
+
+        :return None: None
+        """
+
+        return
 
     def default(self, args: list) -> Any:
         """ Failure handle.
