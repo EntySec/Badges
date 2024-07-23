@@ -106,9 +106,10 @@ class Cmd(Tables, Badges):
         :return None: None
         """
 
-        self.intro = ColorScript().parse(intro)
+        self.intro = intro
         self.prompt = prompt
 
+        self.set_intro(intro)
         self.set_prompt(prompt)
 
         self.internal = []
@@ -145,6 +146,15 @@ class Cmd(Tables, Badges):
         """
 
         self.prompt = ColorScript().parse(prompt)
+
+    def set_intro(self, intro: str) -> None:
+        """ Set intro message.
+
+        :param str intro: intro message
+        :return None: None
+        """
+
+        self.intro = ColorScript().parse(intro)
 
     def delete_external(self, name: str) -> None:
         """ Delete external command.
