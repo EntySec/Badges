@@ -23,6 +23,8 @@ SOFTWARE.
 """
 
 import os
+import sys
+import traceback
 import importlib
 
 from badges import Tables, Badges
@@ -189,6 +191,11 @@ class Cmd(Tables, Badges):
                     {k: None if v[0] == '' else {o: None for o in v[0].split()}
                      for k, v in info['Options'].items()})
 
+            if not self.complete[name]:
+                self.complete[name] = None
+
+        self.completer = NestedCompleter.from_nested_dict(self.complete)
+
     def load_external(self, path: Optional[str] = None, **kwargs) -> None:
         """ Load/reload external commands.
 
@@ -217,16 +224,20 @@ class Cmd(Tables, Badges):
                 self.external[name].update(object.info)
 
                 self.complete[name] = object.complete
+
                 if 'Options' in object.info:
                     self.complete[name].update(
                         {k: None if v[0] == '' else {o: None for o in v[0].split()}
                          for k, v in object.info['Options'].items()})
 
+                if not self.complete[name]:
+                    self.complete[name] = None
+
             except Exception as e:
                 self.print_error(f"Failed to load {file[:-3]} command!")
                 self.print_error(str(e))
 
-            self.completer = NestedCompleter.from_nested_dict(self.complete)
+        self.completer = NestedCompleter.from_nested_dict(self.complete)
 
     def do_exit(self, _) -> None:
         """ Exit console.
@@ -395,12 +406,23 @@ class Cmd(Tables, Badges):
                 line = self.onecmd(line)
                 self.postcmd(line)
 
-            except (EOFError, KeyboardInterrupt):
+            except EOFError:
                 self.print_empty(end='')
                 break
 
+            except KeyboardInterrupt:
+                self.print_empty(end='')
+                continue
+
+            except RuntimeError as e:
+                self.print_error(str(e))
+
+            except RuntimeWarning as w:
+                self.print_warning(str(w))
+
             except Exception as e:
                 self.print_error(f"An error occurred: {str(e)}!")
+                traceback.print_exc(file=sys.stdout)
 
         self.postloop()
 
@@ -447,7 +469,8 @@ class Cmd(Tables, Badges):
 
         args = String().split_args(line)
 
-        if args[0] in self.internal:
+        if args[0] not in self.external \
+                and args[0] in self.internal:
             getattr(self, 'do_' + args[0])(args)
             return line
 
