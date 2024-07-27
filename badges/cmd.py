@@ -129,13 +129,13 @@ class Cmd(Tables, Badges):
         self.completer = NestedCompleter.from_nested_dict(self.complete)
 
         if history:
-            self.session = PromptSession(
+            self._session = PromptSession(
                 history=FileHistory(history),
                 complete_while_typing=True,
                 auto_suggest=AutoSuggestFromHistory()
             )
         else:
-            self.session = PromptSession(
+            self._session = PromptSession(
                 complete_while_typing=True,
                 auto_suggest=AutoSuggestFromHistory()
             )
@@ -390,7 +390,7 @@ class Cmd(Tables, Badges):
         while True:
             try:
                 with patch_stdout(raw=True):
-                    line = self.session.prompt(
+                    line = self._session.prompt(
                         ANSI(self.prompt), completer=self.completer)
 
                 if line is None:
