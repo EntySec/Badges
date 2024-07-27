@@ -197,5 +197,5 @@ class IO(object):
 
         prompt = globals().get("prompt")
         if prompt:
-            sys.stdout.write(prompt + readline.get_line_buffer())
+            sys.stdout.write(prompt)
             sys.stdout.flush()
