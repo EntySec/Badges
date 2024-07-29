@@ -47,6 +47,42 @@ from prompt_toolkit.history import FileHistory
 from prompt_toolkit.formatted_text import ANSI
 
 
+def build_nested_dict(args: list) -> Union[dict, None]:
+    """ Build nested dictionary for arguments.
+
+    :param list args: arguments list
+    :return Union[dict, None]: dictionary
+    """
+
+    if not args:
+        return None
+
+    arg_dict = {args[0]: None}
+
+    if len(args) > 1:
+        arg_dict[args[0]] = build_nested_dict(args[1:])
+
+    return arg_dict
+
+
+def build_nested_completion(info: dict) -> dict:
+    """ Build nested completion.
+
+    :param dict info: command information (Options)
+    :return dict: nested dictionary
+    """
+
+    complete = {}
+
+    for name, data in info.items():
+        if data[0]:
+            complete[name] = build_nested_dict(data[0].split())
+        else:
+            complete[name] = None
+
+    return complete
+
+
 class Command(Tables, Badges):
     """ Subclass of badges module.
 
@@ -73,7 +109,14 @@ class Command(Tables, Badges):
         }
         self.info.update(info)
 
-        self.complete = {}
+    @staticmethod
+    def complete() -> Union[dict, None]:
+        """ Provide autocomplete scheme.
+
+        :return dict: nested autocompletion scheme
+        """
+
+        return
 
     def run(self, args: list) -> None:
         """ Run this command.
@@ -82,7 +125,7 @@ class Command(Tables, Badges):
         :return None: None
         """
 
-        pass
+        return
 
 
 class Cmd(Tables, Badges):
@@ -116,7 +159,9 @@ class Cmd(Tables, Badges):
 
         self.internal = []
         self.external = {}
+
         self.complete = {}
+        self.dynamic_complete = {}
 
         for name in dir(self.__class__):
             if name.startswith('do_'):
@@ -125,8 +170,6 @@ class Cmd(Tables, Badges):
 
         for commands in path:
             self.load_external(commands, **kwargs)
-
-        self.completer = NestedCompleter.from_nested_dict(self.complete)
 
         if history:
             self._session = PromptSession(
@@ -184,17 +227,14 @@ class Cmd(Tables, Badges):
             self.complete[name] = {}
 
             if 'Complete' in info:
-                self.complete[name].update(info['Complete'])
+                self.dynamic_complete[name] = info['Complete']
 
             if 'Options' in info:
                 self.complete[name].update(
-                    {k: None if v[0] == '' else {o: None for o in v[0].split()}
-                     for k, v in info['Options'].items()})
+                    build_nested_completion(info['Options']))
 
             if not self.complete[name]:
                 self.complete[name] = None
-
-        self.completer = NestedCompleter.from_nested_dict(self.complete)
 
     def load_external(self, path: Optional[str] = None, **kwargs) -> None:
         """ Load/reload external commands.
@@ -222,13 +262,14 @@ class Cmd(Tables, Badges):
 
                 self.external[name] = {'Method': object.run}
                 self.external[name].update(object.info)
+                self.complete[name] = {}
 
-                self.complete[name] = object.complete
+                if object.complete() is not None:
+                    self.dynamic_complete[name] = object.complete
 
                 if 'Options' in object.info:
                     self.complete[name].update(
-                        {k: None if v[0] == '' else {o: None for o in v[0].split()}
-                         for k, v in object.info['Options'].items()})
+                        build_nested_completion(object.info['Options']))
 
                 if not self.complete[name]:
                     self.complete[name] = None
@@ -236,8 +277,6 @@ class Cmd(Tables, Badges):
             except Exception as e:
                 self.print_error(f"Failed to load {file[:-3]} command!")
                 self.print_error(str(e))
-
-        self.completer = NestedCompleter.from_nested_dict(self.complete)
 
     def do_exit(self, _) -> None:
         """ Exit console.
@@ -391,7 +430,7 @@ class Cmd(Tables, Badges):
             try:
                 with patch_stdout(raw=True):
                     line = self._session.prompt(
-                        ANSI(self.prompt), completer=self.completer)
+                        ANSI(self.prompt), completer=NestedCompleter.from_nested_dict(self.complete))
 
                 if line is None:
                     break
@@ -405,6 +444,9 @@ class Cmd(Tables, Badges):
                 line = self.precmd(line)
                 line = self.onecmd(line)
                 self.postcmd(line)
+
+                for name, completer in self.dynamic_complete.items():
+                    self.complete[name] = completer()
 
             except EOFError:
                 self.print_empty(end='')
