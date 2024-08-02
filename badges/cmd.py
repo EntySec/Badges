@@ -236,12 +236,15 @@ class Cmd(Tables, Badges):
             if not self.complete[name]:
                 self.complete[name] = None
 
-    def load_external(self, path: Optional[str] = None, **kwargs) -> None:
+    def load_external(self, path: str, **kwargs) -> None:
         """ Load/reload external commands.
 
-        :param Optional[str] path: path to load from
+        :param str path: path to load from
         :return None: None
         """
+
+        if not os.path.exists(path):
+            return
 
         for file in os.listdir(path):
             if not file.endswith('py'):
