@@ -108,7 +108,7 @@ class Badges(IO):
 
         return self.input(*args, **kwargs)
 
-    def input_question(self, message: str, start: str = '%remove%end', *args, **kwargs) -> list:
+    def input_question(self, message: str, start: str = '%end', *args, **kwargs) -> list:
         """ Input string with [?] start.
 
         :param str message: message to print
@@ -118,7 +118,7 @@ class Badges(IO):
 
         return self.input_empty(message, f"{start}%bold%white[?]%end ", *args, **kwargs)
 
-    def input_arrow(self, message: str, start: str = '%remove%end', *args, **kwargs) -> list:
+    def input_arrow(self, message: str, start: str = '%end', *args, **kwargs) -> list:
         """ Input string with [>] start.
 
         :param str message: message to print

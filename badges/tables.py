@@ -34,9 +34,6 @@ class Tables(object):
     print data as a table.
     """
 
-    badges = Badges()
-    colorscript = ColorScript()
-
     def print_table(self, name: str, headers: tuple, *args, **kwargs) -> None:
         """ Print table.
 
@@ -77,8 +74,8 @@ class Tables(object):
 
         for idx, header in enumerate(headers):
             header = str(header)
-            header = self.colorscript.strip(header)
-            column = [custom_len(self.colorscript.parse(str(arg[idx]))) for arg in args]
+            header = ColorScript().strip(header)
+            column = [custom_len(ColorScript().parse(str(arg[idx]))) for arg in args]
             column.append(len(header))
 
             current_line_fill = max(column) + extra_fill
@@ -98,7 +95,7 @@ class Tables(object):
         for arg in args:
             content_line = "    "
             for idx, element in enumerate(arg):
-                element = self.colorscript.parse(str(element))
+                element = ColorScript().parse(str(element))
                 fill_line = fill[idx]
 
                 if '\033' in element:
@@ -109,5 +106,5 @@ class Tables(object):
                 )
             content += content_line.rstrip() + '\n'
 
-        self.badges.print_empty(content.rstrip())
-        self.badges.print_empty()
+        Badges().print_empty(content.rstrip())
+        Badges().print_empty()
