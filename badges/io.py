@@ -134,7 +134,7 @@ class IO(object):
             end_index = start_index
 
     @staticmethod
-    def input(message: str = '', start: str = '%end', end: str = '') -> None:
+    def input(message: str = '', start: str = '%end', end: str = '', *args, **kwargs) -> None:
         """ Input string.
 
         :param str message: message to print
@@ -156,15 +156,13 @@ class IO(object):
         line = ColorScript().parse(str(start) + str(message) + str(end))
         use_log = globals().get("log")
 
-        globals()['prompt'] = line
-        data = session.prompt(ANSI(line))
+        data = session.prompt(ANSI(line), *args, **kwargs)
 
         if use_log:
             with open(use_log, 'a') as f:
                 f.write(line + data + '\n')
                 f.flush()
 
-        globals().pop('prompt')
         return data
 
     def print(self, message: str = '', start: str = '%remove%end', end: str = '%newline', time: bool = False) -> None:
@@ -181,6 +179,7 @@ class IO(object):
             start = str(start) + datetime.now().strftime('%H:%M:%S - ')
 
         line = ColorScript().parse(str(start) + str(message) + str(end))
+
         use_log = globals().get("log")
         use_less = globals().get("less", True)
 
@@ -194,8 +193,3 @@ class IO(object):
             with open(use_log, 'a') as f:
                 f.write(line)
                 f.flush()
-
-        prompt = globals().get("prompt")
-        if prompt:
-            sys.stdout.write(prompt)
-            sys.stdout.flush()
