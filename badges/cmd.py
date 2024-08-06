@@ -24,6 +24,7 @@ SOFTWARE.
 
 import os
 import sys
+import getch
 import traceback
 import importlib
 
@@ -45,6 +46,23 @@ from prompt_toolkit.completion import NestedCompleter
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 from prompt_toolkit.history import FileHistory
 from prompt_toolkit.formatted_text import ANSI
+
+
+def continue_or_exit() -> None:
+    """ Continue loading commands or exit.
+
+    :return None: None
+    """
+
+    sys.stdout.write("Press Enter for more, or 'q' to quit:")
+    sys.stdout.flush()
+
+    user_input = ''
+    while user_input not in ['\n', 'q']:
+        user_input = getch.getch()
+
+    if user_input == 'q':
+        sys.exit(0)
 
 
 def build_nested_dict(args: list) -> Union[dict, None]:
@@ -277,9 +295,10 @@ class Cmd(Tables, Badges):
                 if not self.complete[name]:
                     self.complete[name] = None
 
-            except Exception as e:
+            except Exception:
                 self.print_error(f"Failed to load {file[:-3]} command!")
-                self.print_error(str(e))
+                traceback.print_exc(file=sys.stdout)
+                continue_or_exit()
 
     def do_exit(self, _) -> None:
         """ Exit console.
