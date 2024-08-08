@@ -26,7 +26,8 @@ import os
 import sys
 import getch
 import traceback
-import importlib
+
+import importlib.util
 
 from badges import Tables, Badges
 from colorscript import ColorScript
