@@ -55,7 +55,7 @@ def continue_or_exit() -> None:
     :return None: None
     """
 
-    sys.stdout.write("Press Enter for more, or 'q' to quit:")
+    sys.stdout.write("Press Enter to continue, or 'q' to quit:")
     sys.stdout.flush()
 
     user_input = ''
