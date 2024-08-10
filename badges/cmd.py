@@ -178,6 +178,7 @@ class Cmd(Tables, Badges):
 
         self.internal = []
         self.external = {}
+        self.shorts = {}
 
         self.complete = {}
         self.dynamic_complete = {}
@@ -229,6 +230,18 @@ class Cmd(Tables, Badges):
 
         self.external.pop(name, None)
         self.complete.pop(name, None)
+
+    def add_shortcut(self, alias: str, command: str) -> None:
+        """ Add shortcut for command.
+
+        :param str alias: alias name
+        (e.g. kill)
+        :param str command: command
+        (e.g. jobs kill)
+        :return None: None
+        """
+
+        self.shorts[alias] = command
 
     def add_external(self, external: dict) -> None:
         """ Add external commands.
@@ -377,6 +390,14 @@ class Cmd(Tables, Badges):
             data.append((option, details[0], details[1]))
 
         self.print_table('Options', headers, *data)
+
+        if 'Examples' in info:
+            self.print_empty('Examples:%newline')
+
+            for example in info['Examples']:
+                self.print_empty(example)
+
+            self.print_empty()
 
     def verify_command(self, args: list) -> Tuple[bool, Union[str, list, None]]:
         """ Check if command or shortcut exists.
@@ -533,6 +554,21 @@ class Cmd(Tables, Badges):
         """
 
         args = String().split_args(line)
+
+        if args[0] not in self.external \
+                and args[0] not in self.internal \
+                and args[0] in self.shorts:
+            command = self.shorts[args[0]]
+
+            for i, arg in enumerate(args):
+                command = command.replace(f'?{i}', arg)
+
+            argv = String().split_args(command)
+            args = []
+
+            for arg in argv:
+                if not arg.startswith('?'):
+                    args.append(arg)
 
         if args[0] not in self.external \
                 and args[0] in self.internal:
