@@ -159,6 +159,7 @@ class Cmd(Tables, Badges):
                  intro: Optional[str] = '',
                  path: Optional[list] = [],
                  history: Optional[str] = None,
+                 shorts: dict = {},
                  **kwargs) -> None:
         """ Initialize cmd.
 
@@ -178,7 +179,7 @@ class Cmd(Tables, Badges):
 
         self.internal = []
         self.external = {}
-        self.shorts = {}
+        self.shorts = shorts
 
         self.complete = {}
         self.dynamic_complete = {}
