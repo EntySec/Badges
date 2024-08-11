@@ -576,7 +576,7 @@ class Cmd(Tables, Badges):
         if args[0] not in self.external \
                 and args[0] not in self.internal \
                 and args[0] in self.shorts:
-            command = self.shorts[args[0]]
+            command = self.shorts[args[0]][0]
 
             for i, arg in enumerate(args):
                 command = command.replace(f'?{i}', arg)
