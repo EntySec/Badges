@@ -233,17 +233,18 @@ class Cmd(Tables, Badges):
         self.external.pop(name, None)
         self.complete.pop(name, None)
 
-    def add_shortcut(self, alias: str, command: str) -> None:
+    def add_shortcut(self, alias: str, command: str, desc: str = "") -> None:
         """ Add shortcut for command.
 
         :param str alias: alias name
         (e.g. kill)
         :param str command: command
         (e.g. jobs kill ?1)
+        :param str desc: description
         :return None: None
         """
 
-        self.shorts[alias] = command
+        self.shorts[alias] = [command, desc]
 
     def add_external(self, external: dict) -> None:
         """ Add external commands.
@@ -370,11 +371,11 @@ class Cmd(Tables, Badges):
             data[category].append((command, description))
 
         for command in sorted(self.shorts):
-            alias = self.shorts[command].split()[0]
+            alias = self.shorts[command][0].split()[0]
 
             if alias in self.internal:
                 description = getattr(self, 'do_' + alias).__doc__.strip().split('\n')[0]
-                data['core'].append((command, description))
+                data['core'].append((command, self.shorts[command][1]))
                 continue
 
             alias = self.external.get(alias, None)
@@ -382,7 +383,7 @@ class Cmd(Tables, Badges):
                 continue
 
             data[alias['Category']].append(
-                (command, alias['Description']))
+                (command, self.shorts[command][1]))
 
         for category in sorted(data):
             self.print_table(f"{category} Commands", headers, *data[category])
