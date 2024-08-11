@@ -360,6 +360,14 @@ class Cmd(Tables, Badges):
             data['core'].append((
                 command, description))
 
+        for command in sorted(self.shorts):
+            alias = self.internal.get(command.split()[0],
+                                      self.external.get(command.split()[0], None))
+            if alias['Category'] not in data:
+                data[alias['Category']] = []
+
+            data[alias['Category']].append((command, alias['Description']))
+
         for command in sorted(self.external):
             category = self.external[command]['Category']
             description = self.external[command]['Description']
