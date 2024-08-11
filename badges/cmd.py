@@ -360,14 +360,6 @@ class Cmd(Tables, Badges):
             data['core'].append((
                 command, description))
 
-        for command in sorted(self.shorts):
-            alias = self.internal.get(command.split()[0],
-                                      self.external.get(command.split()[0], None))
-            if alias['Category'] not in data:
-                data[alias['Category']] = []
-
-            data[alias['Category']].append((command, alias['Description']))
-
         for command in sorted(self.external):
             category = self.external[command]['Category']
             description = self.external[command]['Description']
@@ -376,6 +368,21 @@ class Cmd(Tables, Badges):
                 data[category] = []
 
             data[category].append((command, description))
+
+        for command in sorted(self.shorts):
+            alias = self.shorts[command].split()[0]
+
+            if alias in self.internal:
+                description = getattr(self, 'do_' + alias).__doc__.strip().split('\n')[0]
+                data['core'].append((command, description))
+                continue
+
+            alias = self.external.get(alias, None)
+            if not alias:
+                continue
+
+            data[alias['Category']].append(
+                (command, alias['Description']))
 
         for category in sorted(data):
             self.print_table(f"{category} Commands", headers, *data[category])
