@@ -168,6 +168,7 @@ class Cmd(Tables, Badges):
         :param Optional[list] path: list of directories to load
         commands from
         :param Optional[str] history: history file path
+        :param dict shorts: dictionary of shortcuts
         :return None: None
         """
 
@@ -238,7 +239,7 @@ class Cmd(Tables, Badges):
         :param str alias: alias name
         (e.g. kill)
         :param str command: command
-        (e.g. jobs kill)
+        (e.g. jobs kill ?1)
         :return None: None
         """
 
