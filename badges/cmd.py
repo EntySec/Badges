@@ -25,7 +25,9 @@ SOFTWARE.
 import os
 import sys
 import getch
+import shlex
 import traceback
+import argparse
 
 import importlib.util
 
@@ -38,8 +40,6 @@ from typing import (
     Tuple,
     Union
 )
-
-from pex.string import String
 
 from prompt_toolkit import PromptSession
 from prompt_toolkit.patch_stdout import patch_stdout
@@ -66,42 +66,6 @@ def continue_or_exit() -> None:
         sys.exit(0)
 
 
-def build_nested_dict(args: list) -> Union[dict, None]:
-    """ Build nested dictionary for arguments.
-
-    :param list args: arguments list
-    :return Union[dict, None]: dictionary
-    """
-
-    if not args:
-        return None
-
-    arg_dict = {args[0]: None}
-
-    if len(args) > 1:
-        arg_dict[args[0]] = build_nested_dict(args[1:])
-
-    return arg_dict
-
-
-def build_nested_completion(info: dict) -> dict:
-    """ Build nested completion.
-
-    :param dict info: command information (Options)
-    :return dict: nested dictionary
-    """
-
-    complete = {}
-
-    for name, data in info.items():
-        if data[0]:
-            complete[name] = build_nested_dict(data[0].split())
-        else:
-            complete[name] = None
-
-    return complete
-
-
 class Command(Tables, Badges):
     """ Subclass of badges module.
 
@@ -119,12 +83,14 @@ class Command(Tables, Badges):
         self.info = {
             'Category': "",
             'Name': "",
-            'Authors': [
-                ''
-            ],
+            'Authors': [],
             'Description': "",
             'Usage': "",
-            'MinArgs': 0
+            'MinArgs': 0,
+            'Options': [],
+            'Method': None,
+            'Complete': None,
+            'Shorts': {}
         }
         self.info.update(info)
 
@@ -246,27 +212,27 @@ class Cmd(Tables, Badges):
 
         self.shorts[alias] = [command, desc]
 
-    def add_external(self, external: dict) -> None:
+    def add_external(self, external: list) -> None:
         """ Add external commands.
 
-        :param dict external: dictionary containing commands
-        and their informations (e.g. all info + Method and Complete)
+        :param list external: dictionary containing commands
+        instances of ExternalCommand
         :return None: None
         """
 
-        for name, info in external.items():
-            if 'Method' not in info:
+        for command in external:
+            name = command.info['Name']
+
+            if not command.info['Method']:
                 continue
 
-            self.external[name] = info
+            self.external[name] = command.info
             self.complete[name] = {}
 
-            if 'Complete' in info:
-                self.dynamic_complete[name] = info['Complete']
+            self.shorts.update(command.info['Shorts'])
 
-            if 'Options' in info:
-                self.complete[name].update(
-                    build_nested_completion(info['Options']))
+            if command.info['Complete']:
+                self.dynamic_complete[name] = command.info['Complete']
 
             if not self.complete[name]:
                 self.complete[name] = None
@@ -298,16 +264,14 @@ class Cmd(Tables, Badges):
 
                 name = object.info['Name']
 
-                self.external[name] = {'Method': object.run}
-                self.external[name].update(object.info)
+                self.external[name] = object.info
+                self.external[name].update({'Method': object.run})
                 self.complete[name] = {}
+
+                self.shorts.update(object.info['Shorts'])
 
                 if object.complete() is not None:
                     self.dynamic_complete[name] = object.complete
-
-                if 'Options' in object.info:
-                    self.complete[name].update(
-                        build_nested_completion(object.info['Options']))
 
                 if not self.complete[name]:
                     self.complete[name] = None
@@ -374,7 +338,6 @@ class Cmd(Tables, Badges):
             alias = self.shorts[command][0].split()[0]
 
             if alias in self.internal:
-                description = getattr(self, 'do_' + alias).__doc__.strip().split('\n')[0]
                 data['core'].append((command, self.shorts[command][1]))
                 continue
 
@@ -387,35 +350,6 @@ class Cmd(Tables, Badges):
 
         for category in sorted(data):
             self.print_table(f"{category} Commands", headers, *data[category])
-
-    def parse_usage(self, info: dict) -> None:
-        """ Print usage for specific command info.
-
-        :param dict info: dictionary of command info
-        :return None: None
-        """
-
-        self.print_usage(info['Usage'])
-
-        if 'Options' not in info:
-            return
-
-        headers = ('Option', 'Arguments', 'Description')
-        data = []
-
-        for option in info['Options']:
-            details = info['Options'][option]
-            data.append((option, details[0], details[1]))
-
-        self.print_table('Options', headers, *data)
-
-        if 'Examples' in info:
-            self.print_empty('Examples:%newline')
-
-            for example in info['Examples']:
-                self.print_empty(example)
-
-            self.print_empty()
 
     def verify_command(self, args: list) -> Tuple[bool, Union[str, list, None]]:
         """ Check if command or shortcut exists.
@@ -453,29 +387,48 @@ class Cmd(Tables, Badges):
 
             return False, conflict
 
-    @staticmethod
-    def verify_args(args: list, info: dict) -> bool:
+    def verify_args(self, args: list, info: dict) -> None:
         """ Check if arguments correct for command.
 
         :param list args: list of args
         :param dict info: dictionary of command info
-        :return bool: status, True if correct else False
+        :return None: None
         """
 
-        if len(args) - 1 < info['MinArgs']:
-            return False
+        if not info['Options']:
+            if len(args) - 1 < info['MinArgs']:
+                self.print_usage(info['Usage'])
+                return
 
-        if 'Options' in info:
-            if len(args) > 1:
-                if args[1] in info['Options']:
-                    if len(args) - 2 < len(
-                            info['Options'][args[1]][0].split()
-                    ):
-                        return False
-                else:
-                    return False
+            if info['Method'](args):
+                self.print_usage(info['Usage'])
+            return
 
-        return True
+        epilog = None
+        if 'Examples' in info:
+            epilog = "examples:\n  "
+            epilog += "\n  ".join(info['Examples'])
+
+        parser = argparse.ArgumentParser(
+            prog=args[0],
+            description=info['Description'],
+            formatter_class=argparse.RawDescriptionHelpFormatter,
+            epilog=epilog
+        )
+
+        for entry in info['Options']:
+            parser.add_argument(*entry[0], **entry[1])
+
+        try:
+            if len(args) - 1 < info['MinArgs']:
+                parser.print_help()
+                return
+
+            if info['Method'](parser.parse_args(args[1:])):
+                parser.print_help()
+
+        except SystemExit:
+            return
 
     def loop(self) -> None:
         """ Run main loop.
@@ -571,17 +524,18 @@ class Cmd(Tables, Badges):
         :return Any: command result
         """
 
-        args = String().split_args(line)
+        args = shlex.split(line)
 
         if args[0] not in self.external \
                 and args[0] not in self.internal \
                 and args[0] in self.shorts:
-            command = self.shorts[args[0]][0]
+            short = self.shorts[args[0]]
+            command = short[0]
 
             for i, arg in enumerate(args):
                 command = command.replace(f'?{i}', arg)
 
-            argv = String().split_args(command)
+            argv = shlex.split(command)
             args = []
 
             for arg in argv:
@@ -599,12 +553,7 @@ class Cmd(Tables, Badges):
             fixed = [name, *args[1:]]
             command = self.external[name]
 
-            if not self.verify_args(fixed, command):
-                self.parse_usage(command)
-
-            else:
-                command['Method'](fixed)
-
+            self.verify_args(fixed, command)
             return ' '.join(fixed)
 
         if name is not None:
