@@ -443,6 +443,9 @@ class Cmd(Tables, Badges):
 
         while True:
             try:
+                for name, completer in self.dynamic_complete.items():
+                    self.complete[name] = completer()
+
                 with patch_stdout(raw=True):
                     line = self._session.prompt(
                         ANSI(self.prompt), completer=NestedCompleter.from_nested_dict(self.complete))
@@ -459,9 +462,6 @@ class Cmd(Tables, Badges):
                 line = self.precmd(line)
                 line = self.onecmd(line)
                 self.postcmd(line)
-
-                for name, completer in self.dynamic_complete.items():
-                    self.complete[name] = completer()
 
             except EOFError:
                 self.print_empty(end='')
