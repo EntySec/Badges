@@ -125,6 +125,7 @@ class Cmd(Tables, Badges):
                  intro: Optional[str] = '',
                  path: Optional[list] = [],
                  history: Optional[str] = None,
+                 log: Optional[str] = None,
                  shorts: dict = {},
                  **kwargs) -> None:
         """ Initialize cmd.
@@ -134,6 +135,7 @@ class Cmd(Tables, Badges):
         :param Optional[list] path: list of directories to load
         commands from
         :param Optional[str] history: history file path
+        :param Optional[str] log: log file path
         :param dict shorts: dictionary of shortcuts
         :return None: None
         """
@@ -170,6 +172,8 @@ class Cmd(Tables, Badges):
                 complete_while_typing=True,
                 auto_suggest=AutoSuggestFromHistory()
             )
+
+        self.set_log(log)
 
     def set_prompt(self, prompt: str) -> None:
         """ Set prompt message.

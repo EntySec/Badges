@@ -30,7 +30,7 @@ import getch
 from datetime import datetime
 from colorscript import ColorScript
 
-from typing import Callable, Any
+from typing import Callable, Any, Optional
 from contextlib import redirect_stdout, redirect_stderr
 
 from prompt_toolkit import PromptSession
@@ -165,13 +165,17 @@ class IO(object):
 
         return data
 
-    def print(self, message: str = '', start: str = '%remove%end', end: str = '%newline', time: bool = False) -> None:
+    def print(self, message: str = '', start: str = '%remove%end', end: str = '%newline',
+              time: bool = False, log: Optional[bool] = None,
+              less: Optional[bool] = None) -> None:
         """ Print string.
 
         :param str message: message to print
         :param str start: string to print before the message
         :param str end: string to print after the message
         :param bool time: show timestamp after start
+        :param Optional[bool] log: override global log
+        :param Optional[bool] less: override global less
         :return None: None
         """
 
@@ -180,8 +184,8 @@ class IO(object):
 
         line = ColorScript().parse(str(start) + str(message) + str(end))
 
-        use_log = globals().get("log")
-        use_less = globals().get("less", True)
+        use_log = log if log is not None else globals().get("log")
+        use_less = less if less is not None else globals().get("less", True)
 
         if use_less:
             self.print_less(line)
