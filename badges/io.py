@@ -97,7 +97,14 @@ class IO(object):
         :return None: None
         """
 
-        columns, rows = os.get_terminal_size()
+        try:
+            columns, rows = os.get_terminal_size()
+
+        except Exception:
+            sys.stdout.write(data)
+            sys.stdout.flush()
+
+            return
 
         lines = data.split('\n')
         num_lines = len(lines)
