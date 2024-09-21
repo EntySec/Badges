@@ -362,7 +362,7 @@ class Cmd(Tables, Badges):
                 self.print_table(f"{category} Commands", headers, *data[category])
                 buffer += buf.getvalue()
 
-        self.print_empty(buffer)
+        self.print_empty(buffer, end='')
 
     def verify_command(self, args: list) -> Tuple[bool, Union[str, list, None]]:
         """ Check if command or shortcut exists.
