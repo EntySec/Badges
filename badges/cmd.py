@@ -353,14 +353,14 @@ class Cmd(Tables, Badges):
             data[alias['Category']].append(
                 (command, self.shorts[command][1]))
 
-        data = ''
+        buffer = ''
 
         for category in sorted(data):
             with io.StringIO() as buf, redirect_stdout(buf), redirect_stderr(buf):
                 self.print_table(f"{category} Commands", headers, *data[category])
-                data += buf.getvalue()
+                buffer += buf.getvalue()
 
-        self.print_empty(data)
+        self.print_empty(buffer)
 
     def verify_command(self, args: list) -> Tuple[bool, Union[str, list, None]]:
         """ Check if command or shortcut exists.
