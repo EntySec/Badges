@@ -35,6 +35,8 @@ import importlib.util
 from badges import Tables, Badges
 from colorscript import ColorScript
 
+from contextlib import redirect_stdout, redirect_stderr
+
 from typing import (
     Any,
     Optional,
