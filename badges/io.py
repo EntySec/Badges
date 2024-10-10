@@ -144,7 +144,7 @@ class IO(object):
                 continue
 
             elif user_input == 'a':
-                end_index = start_index + num_lines
+                end_index = num_lines
                 continue
 
             end_index = start_index
