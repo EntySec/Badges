@@ -530,14 +530,14 @@ class Cmd(Tables, Badges):
 
         return
 
-    def onecmd(self, line: str) -> Tuple[int, list]:
+    def onecmd(self, line: str) -> str:
         """ Execute single command.
 
         :param str line: line
-        :return Any: command result
+        :return str: command result
         """
 
-        args = shlex.split(line)
+        args = shlex.split(line.strip())
 
         if args[0] not in self.external \
                 and args[0] not in self.internal \
