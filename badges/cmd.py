@@ -537,7 +537,9 @@ class Cmd(Tables, Badges):
         :return str: command result
         """
 
-        args = shlex.split(line.strip())
+        args = shlex.split(line)
+        if len(args) < 1:
+            return line
 
         if args[0] not in self.external \
                 and args[0] not in self.internal \
