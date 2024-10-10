@@ -123,12 +123,12 @@ class IO(object):
             if end_index >= num_lines - 1:
                 break
 
-            sys.stdout.write("Press Enter for more, or 'q' to quit:")
+            sys.stdout.write("Press Enter for more, 'a' for all, 'q' to quit:")
             sys.stdout.flush()
 
             user_input = ''
 
-            while user_input not in ['\n', 'q']:
+            while user_input not in ['\n', 'q', ' ', 'a']:
                 user_input = getch.getch()
 
             sys.stdout.write(ColorScript().parse('%remove'))
@@ -138,6 +138,15 @@ class IO(object):
                 return
 
             start_index = end_index + 1
+
+            if user_input == ' ':
+                end_index = start_index + 10
+                continue
+
+            elif user_input == 'a':
+                end_index = start_index + (num_lines - start_index)
+                continue
+
             end_index = start_index
 
     @staticmethod
