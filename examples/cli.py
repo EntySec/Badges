@@ -32,6 +32,7 @@ class CLI(Cmd):
             intro="""
 %bold%whiteSample Command-Line Interface%end
 """,
+            builtins={'&': 'sample'}
         )
 
         self.commands = [

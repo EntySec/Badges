@@ -29,6 +29,7 @@ import getch
 import shlex
 import traceback
 import argparse
+import subprocess
 
 import importlib.util
 
@@ -130,6 +131,7 @@ class Cmd(Tables, Badges):
                  history: Optional[str] = None,
                  log: Optional[str] = None,
                  shorts: dict = {},
+                 builtins: dict = {},
                  **kwargs) -> None:
         """ Initialize cmd.
 
@@ -140,6 +142,8 @@ class Cmd(Tables, Badges):
         :param Optional[str] history: history file path
         :param Optional[str] log: log file path
         :param dict shorts: dictionary of shortcuts
+        :param dict builtins: dictionary of built-ins
+        (e.g. ? for help, ! for commands, etc.)
         :return None: None
         """
 
@@ -155,6 +159,7 @@ class Cmd(Tables, Badges):
 
         self.complete = {}
         self.dynamic_complete = {}
+        self.source = []
 
         for name in dir(self.__class__):
             if name.startswith('do_'):
@@ -177,6 +182,37 @@ class Cmd(Tables, Badges):
             )
 
         self.set_log(log)
+
+        self.builtins = {
+            '!': self.system,
+            '#': lambda x: x,
+            '*': 'help',
+            '?': 'help',
+            '@': 'clear',
+            '.': 'exit',
+            ':': 'source',
+        }
+        self.builtins.update(builtins)
+
+    def system(self, args: list) -> None:
+        """ Execute system commands.
+
+        :param list args: arguments
+        :return None: None
+        """
+
+        if len(args) < 1:
+            self.print_usage('!<command>')
+            return
+
+        self.print_process(f"Executing system command: {args[0]}%newline")
+
+        try:
+            subprocess.run(args)
+
+        except Exception as e:
+            self.print_error(f"Failed to execute: {str(e)}!")
+            return
 
     def set_prompt(self, prompt: str) -> None:
         """ Set prompt message.
@@ -287,6 +323,28 @@ class Cmd(Tables, Badges):
                 self.print_error(f"Failed to load {file[:-3]} command!")
                 traceback.print_exc(file=sys.stdout)
                 continue_or_exit()
+
+    def do_source(self, args: list) -> None:
+        """ Execute specific file as source.
+
+        :param list args: command arguments
+        :return None: None
+        """
+
+        if len(args) < 2 or not args[1]:
+            while True:
+                line = self._session.prompt(
+                    ANSI(': '),
+                    completer=NestedCompleter.from_nested_dict(self.complete))
+
+                if not line:
+                    break
+
+                self.source.append(line)
+
+        else:
+            self.print_process(f"Executing from file: {args[1]}%newline")
+            self.source = open(args[1], 'r').read().split('\n')
 
     def do_exit(self, _) -> None:
         """ Exit console.
@@ -459,9 +517,12 @@ class Cmd(Tables, Badges):
                 for name, completer in self.dynamic_complete.items():
                     self.complete[name] = completer()
 
-                with patch_stdout(raw=True):
-                    line = self._session.prompt(
-                        ANSI(self.prompt), completer=NestedCompleter.from_nested_dict(self.complete))
+                if not self.source:
+                    with patch_stdout(raw=True):
+                        line = self._session.prompt(
+                            ANSI(self.prompt), completer=NestedCompleter.from_nested_dict(self.complete))
+                else:
+                    line = self.source.pop(0)
 
                 if line is None:
                     break
@@ -537,9 +598,32 @@ class Cmd(Tables, Badges):
         :return str: command result
         """
 
-        args = shlex.split(line)
+        try:
+            args = shlex.split(line)
+
+        except ValueError as e:
+            self.print_error(f"Error parsing command: {str(e)}")
+
         if len(args) < 1:
             return line
+
+        for builtin, func in self.builtins.items():
+            if args[0].startswith(builtin):
+                first = args[0].lstrip(builtin)
+                prepend = []
+
+                if not isinstance(func, str):
+                    if first:
+                        func([first, *args[1:]])
+                    else:
+                        func(args[1:])
+
+                    return line
+
+                if first:
+                    args = [func, first, *args[1:]]
+                else:
+                    args = [func, *args[1:]]
 
         if args[0] not in self.external \
                 and args[0] not in self.internal \
