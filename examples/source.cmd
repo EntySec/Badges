@@ -25,7 +25,8 @@
 @
 ?
 
-!ls -al       # execute system command
-sample hello  # execute CLI command
+# comment
+!ls -al
+sample bye
 
 .

@@ -618,6 +618,10 @@ class Cmd(Tables, Badges):
                 first = args[0].lstrip(builtin)
                 prepend = []
 
+                if isinstance(func, list):
+                    self.source += func
+                    return
+
                 if not isinstance(func, str):
                     if first:
                         func([first, *args[1:]])
