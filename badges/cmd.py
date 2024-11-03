@@ -342,9 +342,15 @@ class Cmd(Tables, Badges):
 
                 self.source.append(line)
 
-        else:
+            return
+
+        if os.path.exists(args[1]) and not os.path.isdir(args[1]):
             self.print_process(f"Executing from file: {args[1]}%newline")
             self.source = open(args[1], 'r').read().split('\n')
+
+            return
+
+        self.print_error(f"Local file: {args[1]}: does not exist!")
 
     def do_exit(self, _) -> None:
         """ Exit console.
