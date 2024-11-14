@@ -232,15 +232,17 @@ class Cmd(Tables, Badges):
 
         self.intro = ColorScript().parse(intro)
 
-    def delete_external(self, name: str) -> None:
-        """ Delete external command.
+    def delete_external(self, external: list) -> None:
+        """ Delete external commands.
 
-        :param str name: command name
+        :param list external: list containing commands
+        instances of Command
         :return None: None
         """
 
-        self.external.pop(name, None)
-        self.complete.pop(name, None)
+        for command in external:
+            self.external.pop(command.info['Name'], None)
+            self.complete.pop(command.info['Name'], None)
 
     def add_shortcut(self, alias: str, command: str, desc: str = "") -> None:
         """ Add shortcut for command.
@@ -258,8 +260,8 @@ class Cmd(Tables, Badges):
     def add_external(self, external: list) -> None:
         """ Add external commands.
 
-        :param list external: dictionary containing commands
-        instances of ExternalCommand
+        :param list external: list containing commands
+        instances of Command
         :return None: None
         """
 
