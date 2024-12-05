@@ -46,7 +46,7 @@ else:
 ### Map plotting
 
 ```python3
-from badges import Badges
+from badges import Map
 
 plot = Map()
 plot.deploy(55.751244, 37.618423)
