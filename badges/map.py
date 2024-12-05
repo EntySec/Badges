@@ -102,7 +102,7 @@ class Map(object):
         """
 
         x, y = self.location(latitude, longitude)
-        self.data[y] = self.data[y][:x] + self.dot + self.data[y][x + 1:]
+        self.data[y] = self.data[y][:x] + 'x' + self.data[y][x + 1:]
 
     def get_map(self) -> str:
         """ Get map.
@@ -110,4 +110,5 @@ class Map(object):
         :return str: map
         """
 
-        return '\n'.join(self.data)
+        map = '\n'.join(self.data)
+        return map.replace('x', self.dot)
