@@ -51,6 +51,9 @@ from prompt_toolkit.completion import NestedCompleter
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 from prompt_toolkit.history import FileHistory
 from prompt_toolkit.formatted_text import ANSI
+from rich.console import Console
+
+console = Console()
 
 
 def continue_or_exit() -> None:
@@ -428,7 +431,8 @@ class Cmd(Tables, Badges):
                 self.print_table(f"{category} Commands", headers, *data[category])
                 buffer += buf.getvalue()
 
-        self.print_empty(buffer, end='')
+        console.print(buffer)
+
 
     def verify_command(self, args: list) -> Tuple[bool, Union[str, list, None]]:
         """ Check if command or shortcut exists.
